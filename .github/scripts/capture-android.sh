@@ -11,6 +11,11 @@ mkdir -p "$OUT"
 adb wait-for-device
 adb install -r "$APK"
 
+# the CI emulator's launcher often stops responding and its dialog covers the app: no launcher, no error dialogs
+adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher > /dev/null 2>&1 || true
+adb shell settings put global hide_error_dialogs 1 || true
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null 2>&1 || true
+
 # a clean status bar: 09:41, full battery, full signal, no notification icons
 adb shell settings put global sysui_demo_allowed 1
 demo() { adb shell am broadcast -a com.android.systemui.demo -e command "$@" > /dev/null; }
@@ -18,7 +23,7 @@ demo enter
 demo clock -e hhmm 0941
 demo battery -e level 100 -e plugged false
 demo network -e wifi show -e level 4
-demo network -e mobile show -e datatype none -e level 4
+demo network -e mobile hide
 demo notifications -e visible false
 
 status=0

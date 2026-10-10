@@ -4,6 +4,10 @@ appId: codes.qrx.app
 ---
 - launchApp:
     stopApp: true
+# a system "isn't responding" dialog on a busy CI emulator
+- tapOn:
+    text: Wait
+    optional: true
 - extendedWaitUntil:
     visible: Picture
     timeout: 60000
@@ -12,7 +16,7 @@ appId: codes.qrx.app
 - tapOn: example.com/menu
 - inputText: harbourcafe.example/menu
 - hideKeyboard
-- tapOn: Watercolour
+- tapOn: Watercolour style
 - scrollUntilVisible:
     element: Describe a picture and add your link.*
     direction: UP

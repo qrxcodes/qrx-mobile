@@ -3,6 +3,10 @@ appId: codes.qrx.app
 ---
 - launchApp:
     stopApp: true
+# a system "isn't responding" dialog on a busy CI emulator
+- tapOn:
+    text: Wait
+    optional: true
 - extendedWaitUntil:
     visible: Picture
     timeout: 60000

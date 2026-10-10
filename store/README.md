@@ -64,15 +64,16 @@ Agreement or merchant account (nothing is sold).
       capability **Sign in with Apple** ticked ("Enable as a primary App ID"). Apple needs this primary App ID behind
       the web sign-in.
    2. Identifiers → **+** → Services IDs: description "QRX sign-in", identifier `codes.qrx.signin`. Enable Sign in
-      with Apple and group it with the primary App ID `codes.qrx.app`; domains and return URL: the values Clerk shows
-      in step 4.
+      with Apple and group it with the primary App ID `codes.qrx.app`; domains and return URL: Clerk's domain
+      (`clerk.qrx.codes`) and the exact Return URL Clerk shows when you open its Apple connection (step 5).
    3. Keys → **+** → "QRX Sign in with Apple", enable Sign in with Apple, configure with the same App ID. Download the
       key (`.p8`) and note its Key ID.
-   4. Clerk prod dashboard → Configure → SSO connections → **Add → Apple**: Services ID, Team ID, Key ID and the key.
-      Save. Repeat on the dev instance if you want to test with the dev build.
-   5. Give the prod API the same Services ID, Team ID, Key ID and key (the `APPLE_SIGNIN_*` settings in the main
-      repo), so deleting an account revokes its Apple sign-in, as Apple asks. Deploy the main repo's account-deletion
-      change before turning Apple on.
+   4. **First** give the prod API the same values, so deleting an account revokes its Apple sign-in, as Apple asks.
+      MakerXStudio/qrxcodes → Settings → Environments → **Prod**: variables `APPLE_SIGNIN_TEAM_ID`,
+      `APPLE_SIGNIN_KEY_ID` and `APPLE_SIGNIN_SERVICES_ID`, and secret `APPLE_SIGNIN_PRIVATE_KEY` (the `.p8` text).
+      Redeploy prod (it must include #522, the account deletion change).
+   5. **Then** Clerk prod dashboard → Configure → SSO connections → **Add → Apple**: Services ID, Team ID, Key ID and
+      the key. Save. For the dev instance, do step 4 for the **Dev** environment first.
    6. Open `https://qrx.codes/sign-in` and check "Continue with Apple" appears.
 3. **Clerk OAuth app for the app** (prod dashboard → Configure → OAuth applications → **Add**):
    - Name **QRX for iOS and Android**; public client (no secret); PKCE required; consent screen on.
