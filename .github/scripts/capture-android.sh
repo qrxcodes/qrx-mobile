@@ -24,7 +24,9 @@ demo notifications -e visible false
 status=0
 for mode in light dark; do
   if [ "$mode" = dark ]; then adb shell cmd uimode night yes; else adb shell cmd uimode night no; fi
-  maestro test -e OUT="$OUT" -e MODE="$mode" --debug-output "$OUT/debug-$mode" .maestro/screenshots/store.yaml || status=1
+  maestro test -e MODE="$mode" --test-output-dir "$OUT/run-$mode" --debug-output "$OUT/debug-$mode" \
+    .maestro/screenshots/store.yaml || status=1
+  find "$OUT/run-$mode" -name "$mode-*.png" -exec mv {} "$OUT/" \;
 done
 adb shell cmd uimode night no
 

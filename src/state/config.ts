@@ -25,15 +25,15 @@ export const config = {
   clientTag: `qrx-${Platform.OS}/${Constants.expoConfig?.version ?? '1.0.0'}`,
 } as const;
 
-/** Pages on the website the app links to. None of them sells anything. */
+/**
+ * Pages on the website the app opens. `view=app` shows them without the site's navigation and footer, which link to
+ * plans: the stores don't allow an app that sells nothing to open pages that lead to buying. The help pages link to
+ * billing, so help is by email.
+ */
 export const links = {
-  home: config.apiBase,
-  support: 'https://qrx.codes/support',
-  privacy: 'https://qrx.codes/privacy',
-  terms: 'https://qrx.codes/terms',
-  /** Clerk's account screen, Security tab, where "Delete account" lives. */
-  deleteAccount: `${config.apiBase}/settings#/security`,
-  deletionHelp: 'https://qrx.codes/support#delete-account',
-  apiKeys: `${config.apiBase}/developers/keys`,
-  supportEmail: 'mailto:support@qrx.codes',
+  privacy: 'https://qrx.codes/privacy?view=app',
+  terms: 'https://qrx.codes/terms?view=app',
+  /** The account page's Security tab, where "Delete account" lives. */
+  deleteAccount: `${config.apiBase}/settings?view=app#/security`,
+  supportEmail: 'mailto:support@qrx.codes?subject=QRX%20app',
 };

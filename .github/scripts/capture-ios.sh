@@ -37,7 +37,9 @@ capture() {
 
   for mode in light dark; do
     xcrun simctl ui "$udid" appearance "$mode"
-    maestro --device "$udid" test -e OUT="$OUT" -e MODE="$label-$mode" --debug-output "$OUT/debug-$label-$mode"       .maestro/screenshots/store.yaml || status=1
+    maestro --device "$udid" test -e MODE="$label-$mode" --test-output-dir "$OUT/run-$label-$mode" \
+      --debug-output "$OUT/debug-$label-$mode" .maestro/screenshots/store.yaml || status=1
+    find "$OUT/run-$label-$mode" -name "$label-$mode-*.png" -exec mv {} "$OUT/" \;
   done
   xcrun simctl ui "$udid" appearance light
 

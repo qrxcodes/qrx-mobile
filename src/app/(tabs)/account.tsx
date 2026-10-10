@@ -113,7 +113,12 @@ export default function AccountScreen() {
       </Group>
 
       <Group title="Help and legal">
-        <Row title="Help and support" icon={icons.help} onPress={() => open(links.support)} />
+        <Row
+          title="Help and support"
+          detail="support@qrx.codes"
+          icon={icons.help}
+          onPress={() => void Linking.openURL(links.supportEmail)}
+        />
         <Row title="Privacy policy" icon={icons.lock} onPress={() => open(links.privacy)} />
         <Row title="Terms of service" icon={icons.doc} onPress={() => open(links.terms)} />
       </Group>

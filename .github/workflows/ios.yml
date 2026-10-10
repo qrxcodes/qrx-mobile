@@ -88,3 +88,4 @@ jobs:
         with:
           name: screenshots-ios
           path: shots/ios
+          include-hidden-files: true

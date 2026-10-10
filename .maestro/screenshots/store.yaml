@@ -1,4 +1,4 @@
-# Store screenshots of the mock build. Run with -e OUT=<absolute folder> -e MODE=<prefix>; each shot waits for its
+# Store screenshots of the mock build. Run with -e MODE=<file prefix> and --test-output-dir; each shot waits for its
 # screen's content instead of sleeping.
 appId: codes.qrx.app
 ---
@@ -17,7 +17,7 @@ appId: codes.qrx.app
     element: Describe a picture and add your link.*
     direction: UP
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/${MODE}-2-create
+- takeScreenshot: ${MODE}-2-create
 
 - openLink: codes.qrx.app://preview-sign-in
 - tapOn:
@@ -27,7 +27,7 @@ appId: codes.qrx.app
     visible: Sign in with QRX
     timeout: 20000
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/${MODE}-1-sign-in
+- takeScreenshot: ${MODE}-1-sign-in
 
 - openLink: codes.qrx.app://code/n3wc0d
 - tapOn:
@@ -36,17 +36,17 @@ appId: codes.qrx.app
 - extendedWaitUntil:
     visible: You can leave this screen
     timeout: 20000
-- takeScreenshot: ${OUT}/${MODE}-3-progress
+- takeScreenshot: ${MODE}-3-progress
 
 - openLink: codes.qrx.app://code/hv8551
 - tapOn:
     text: Open
     optional: true
 - extendedWaitUntil:
-    visible: qrx.to/hv8551
+    visible: Checked to scan
     timeout: 20000
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/${MODE}-4-result
+- takeScreenshot: ${MODE}-4-result
 
 - openLink: codes.qrx.app://codes
 - tapOn:
@@ -56,7 +56,7 @@ appId: codes.qrx.app
     visible: Every code you make, here and on qrx.codes.
     timeout: 20000
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/${MODE}-5-my-codes
+- takeScreenshot: ${MODE}-5-my-codes
 
 - openLink: codes.qrx.app://account
 - tapOn:
@@ -66,4 +66,4 @@ appId: codes.qrx.app
     visible: Today
     timeout: 20000
 - waitForAnimationToEnd
-- takeScreenshot: ${OUT}/${MODE}-6-account
+- takeScreenshot: ${MODE}-6-account

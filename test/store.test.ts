@@ -40,6 +40,16 @@ describe('app copy', () => {
     }
   });
 
+  it('opens website pages only in app view, without the site navigation that links to plans', () => {
+    // the screens and the link list; API data and mock samples hold code-page URLs that the app never opens
+    for (const file of sources.filter((f) => /[\\/](app|ui)[\\/]|config\.ts$/.test(f))) {
+      const code = withoutComments(read(file));
+      for (const match of code.matchAll(/(https:\/\/qrx\.codes|\$\{config\.apiBase\})\/[^'"`\s]*/g)) {
+        expect(match[0], rel(file)).toMatch(/[?&]view=app/);
+      }
+    }
+  });
+
   it('mentions paid plans only as "on a paid plan"', () => {
     for (const file of sources) {
       for (const match of withoutComments(read(file)).matchAll(/[^.'"`]*\bpaid\b[^.'"`]*/gi)) {

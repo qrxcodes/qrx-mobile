@@ -8,7 +8,7 @@ appId: codes.qrx.app
     text: Open
     optional: true
 - extendedWaitUntil:
-    visible: qrx.to/hv8551
+    visible: Checked to scan
     timeout: 30000
 - tapOn:
     text: Copy link
