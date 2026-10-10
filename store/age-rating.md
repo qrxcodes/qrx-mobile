@@ -66,5 +66,5 @@ Expected result: **13+**. "Made for Kids": No.
 | Unrestricted internet access                    | No                                                                                                                                                                                                        |
 | Contains AI-generated content (if asked)        | Yes: images generated from the user's text prompt, filtered for obscene prompts, reportable in the app                                                                                                    |
 
-Expected result: around **Teen / PEGI 12 / USK 12**. Target audience in Play: 13–15, 16–17 and 18+ (see
+Expected result: around **Teen / PEGI 12 / USK 12**. Target audience in Play: 18 and over (see
 `google-play.md`).
