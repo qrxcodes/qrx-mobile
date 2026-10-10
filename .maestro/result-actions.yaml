@@ -1,0 +1,19 @@
+# The result screen: copy the short link, save the picture, open the report sheet.
+appId: codes.qrx.app
+---
+- openLink: codes.qrx.app://code/hv8551
+- extendedWaitUntil:
+    visible: qrx.to/hv8551
+    timeout: 20000
+- tapOn: Copy link
+- assertVisible: Link copied
+- tapOn: Save
+- extendedWaitUntil:
+    visible: 'Saved to .*'
+    timeout: 15000
+- scrollUntilVisible:
+    element: Report a problem with this image
+- tapOn: Report a problem with this image
+- assertVisible: Report this image
+- tapOn: Send report
+- assertVisible: Thanks, we’ve got it

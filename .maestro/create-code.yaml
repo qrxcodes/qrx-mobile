@@ -1,0 +1,23 @@
+# Make a code end to end against the mock API: fill the form, watch it being made, land on the result.
+appId: codes.qrx.app
+---
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: Create code
+    timeout: 20000
+- tapOn: A lighthouse on a rocky coast at dawn, soft watercolour
+- inputText: A paper boat on a calm lake
+- tapOn: example.com/menu
+- inputText: example.com/menu
+- hideKeyboard
+- scrollUntilVisible:
+    element: Create code
+- tapOn: Create code
+- extendedWaitUntil:
+    visible: 'Painting your picture|Building the code into it'
+    timeout: 10000
+- extendedWaitUntil:
+    visible: Checked to scan
+    timeout: 30000
+- assertVisible: Copy link

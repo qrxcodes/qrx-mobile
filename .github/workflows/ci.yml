@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, type-check, test, export
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run format:check
+      - name: Dependencies match the Expo SDK
+        run: npx expo install --check
+      - name: expo-doctor
+        run: npx expo-doctor
+      - name: Bundle the JavaScript for both platforms (production and development builds)
+        run: |
+          npx expo export --platform ios --platform android --output-dir dist/prod
+          APP_VARIANT=development npx expo export --platform ios --platform android --output-dir dist/dev
+      - name: Generate the native projects (config plugins run)
+        run: npx expo prebuild --no-install

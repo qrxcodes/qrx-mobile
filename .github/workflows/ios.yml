@@ -1,0 +1,90 @@
+name: iOS
+
+# Builds the app for the iOS Simulator (unsigned): the development build as an artifact, and the mock build for store
+# screenshots on iPhone 6.9" and iPad 13". Store builds need the owner's Apple signing secrets (see store/README.md).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      screenshots:
+        description: Capture store screenshots
+        type: boolean
+        default: true
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator:
+    name: Simulator build (${{ matrix.build }})
+    runs-on: macos-26
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [development, mock]
+    env:
+      APP_VARIANT: ${{ matrix.build == 'development' && 'development' || 'production' }}
+      QRX_MOCK: ${{ matrix.build == 'mock' && '1' || '' }}
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - name: Skip the mock build unless screenshots are wanted
+        id: go
+        run: |
+          if [ "${{ matrix.build }}" = mock ] && [ "${{ github.event_name }}" != workflow_dispatch ] && [ "${{ github.ref }}" != refs/heads/main ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ matrix.build }}" = mock ] && [ "${{ github.event_name }}" = workflow_dispatch ] && [ "${{ inputs.screenshots }}" != true ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v7
+        if: steps.go.outputs.run == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.go.outputs.run == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Select the newest Xcode 26
+        if: steps.go.outputs.run == 'true'
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+      - if: steps.go.outputs.run == 'true'
+        run: npm ci
+      - if: steps.go.outputs.run == 'true'
+        run: npx expo prebuild --platform ios
+      - name: Build for the simulator
+        if: steps.go.outputs.run == 'true'
+        run: |
+          WORKSPACE=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          set -o pipefail
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO | tail -n 40
+          APP=$(ls -d build/Build/Products/Release-iphonesimulator/*.app | head -1)
+          echo "APP=$APP" >> "$GITHUB_ENV"
+          ditto -c -k --keepParent "$APP" qrx-${{ matrix.build }}-simulator.zip
+      - uses: actions/upload-artifact@v7
+        if: steps.go.outputs.run == 'true'
+        with:
+          name: qrx-${{ matrix.build }}-simulator-app
+          path: qrx-${{ matrix.build }}-simulator.zip
+      - name: Install Maestro
+        if: steps.go.outputs.run == 'true' && matrix.build == 'mock'
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Capture screenshots
+        if: steps.go.outputs.run == 'true' && matrix.build == 'mock'
+        run: bash .github/scripts/capture-ios.sh "$APP"
+      - uses: actions/upload-artifact@v7
+        if: always() && steps.go.outputs.run == 'true' && matrix.build == 'mock'
+        with:
+          name: screenshots-ios
+          path: shots/ios
