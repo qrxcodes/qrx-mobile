@@ -46,8 +46,9 @@ export default function DeleteAccount() {
         <Text variant="body">• Cancels any plan billed through the QRX website, so it doesn’t renew.</Text>
       </Card>
       <Text variant="small" tone="muted">
-        You’ll finish on your QRX account page: choose Delete account at the bottom of the Security section. The privacy
-        policy explains the few records we have to keep, such as invoices.
+        You’ll finish on your QRX account page: choose Delete account in the Security section and confirm. Deletion is
+        immediate. A few copies take longer to go: server logs, which can include prompts and links, are kept for up to
+        30 days, and invoices are kept as the law requires. The privacy policy has the details.
       </Text>
       {stillThere ? (
         <Notice
