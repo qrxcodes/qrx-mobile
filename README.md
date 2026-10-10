@@ -44,11 +44,12 @@ Create.
 
 ## CI
 
-| Workflow      | What                                                                                                                                        |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`      | Type-check, lint, unit tests, Prettier, `expo install --check`, `expo-doctor`, `expo export` for both platforms and builds, `expo prebuild` |
-| `android.yml` | Development APK (artifact `qrx-dev-apk`); on main or on demand, store screenshots in an emulator plus Maestro flows                         |
-| `ios.yml`     | Simulator builds (artifact); on main or on demand, iPhone 6.9" and iPad 13" screenshots plus Maestro flows                                  |
+| Workflow      | What                                                                                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`      | Type-check, lint, unit tests, Prettier, `expo install --check`, `expo-doctor`, `expo export` for both platforms and builds, `expo prebuild`          |
+| `android.yml` | Development APK (artifact `qrx-dev-apk`); on main or on demand, store screenshots in an emulator plus Maestro flows                                  |
+| `ios.yml`     | Simulator builds (artifact); on main or on demand, iPhone 6.9" and iPad 13" screenshots plus Maestro flows                                           |
+| `release.yml` | Manual: production builds signed for the stores, uploaded to TestFlight and Play internal testing once the signing secrets exist (`store/README.md`) |
 
 ## Store
 
