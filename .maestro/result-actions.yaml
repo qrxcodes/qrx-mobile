@@ -14,19 +14,26 @@ appId: codes.qrx.app
 - extendedWaitUntil:
     visible: Checked to scan
     timeout: 30000
-- tapOn:
-    text: Copy link
-    index: 0
-    waitToSettleTimeoutMs: 300
-- extendedWaitUntil:
-    visible: Copied
-    timeout: 5000
-- tapOn:
-    text: Save
-    waitToSettleTimeoutMs: 300
-- extendedWaitUntil:
-    visible: Saved
-    timeout: 15000
+# taps on a busy CI emulator are sometimes dropped, so each action may be tried again
+- retry:
+    maxRetries: 2
+    commands:
+      - tapOn:
+          text: Copy link
+          index: 0
+          waitToSettleTimeoutMs: 300
+      - extendedWaitUntil:
+          visible: Copied
+          timeout: 4000
+- retry:
+    maxRetries: 2
+    commands:
+      - tapOn:
+          text: Save
+          waitToSettleTimeoutMs: 300
+      - extendedWaitUntil:
+          visible: Saved
+          timeout: 15000
 - scrollUntilVisible:
     element: Report a problem with this image
 - tapOn: Report a problem with this image

@@ -106,6 +106,8 @@ Agreement or merchant account (nothing is sold).
 
 ### Google Play
 
+Before submitting: Play's AI-generated content policy requires preventing restricted content, and today QRX only filters prompts against a word list. Stronger prompt and image moderation must be live first (main repo, `docs/distribution/builds/mobile-apps.md`, section 6).
+
 11. **Upload key** (once, keep backups):
     `keytool -genkeypair -v -keystore qrx-upload.jks -alias qrx-upload -keyalg RSA -keysize 4096 -validity 10000`.
     Set `ANDROID_UPLOAD_KEYSTORE_BASE64` (`base64 -w0 qrx-upload.jks`), `ANDROID_UPLOAD_KEYSTORE_PASSWORD`,

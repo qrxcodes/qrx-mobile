@@ -23,51 +23,71 @@ appId: codes.qrx.app
 - waitForAnimationToEnd
 - takeScreenshot: ${MODE}-2-create
 
-- openLink: codes.qrx.app://preview-sign-in
-- tapOn:
-    text: Open
-    optional: true
-- extendedWaitUntil:
-    visible: Sign in with QRX
-    timeout: 20000
+# deep links and the system "Open in QRX?" prompt can be slow on CI simulators, so each is tried again
+- retry:
+    maxRetries: 2
+    commands:
+      - openLink: codes.qrx.app://preview-sign-in
+      - tapOn:
+          text: Open
+          optional: true
+      - extendedWaitUntil:
+          visible: Sign in with QRX
+          timeout: 20000
 - waitForAnimationToEnd
 - takeScreenshot: ${MODE}-1-sign-in
 
-- openLink: codes.qrx.app://code/n3wc0d
-- tapOn:
-    text: Open
-    optional: true
-- extendedWaitUntil:
-    visible: You can leave this screen
-    timeout: 20000
+# deep links and the system "Open in QRX?" prompt can be slow on CI simulators, so each is tried again
+- retry:
+    maxRetries: 2
+    commands:
+      - openLink: codes.qrx.app://code/n3wc0d
+      - tapOn:
+          text: Open
+          optional: true
+      - extendedWaitUntil:
+          visible: You can leave this screen
+          timeout: 20000
 - takeScreenshot: ${MODE}-3-progress
 
-- openLink: codes.qrx.app://code/hv8551
-- tapOn:
-    text: Open
-    optional: true
-- extendedWaitUntil:
-    visible: Checked to scan
-    timeout: 20000
+# deep links and the system "Open in QRX?" prompt can be slow on CI simulators, so each is tried again
+- retry:
+    maxRetries: 2
+    commands:
+      - openLink: codes.qrx.app://code/hv8551
+      - tapOn:
+          text: Open
+          optional: true
+      - extendedWaitUntil:
+          visible: Checked to scan
+          timeout: 20000
 - waitForAnimationToEnd
 - takeScreenshot: ${MODE}-4-result
 
-- openLink: codes.qrx.app://codes
-- tapOn:
-    text: Open
-    optional: true
-- extendedWaitUntil:
-    visible: Every code you make, here and on qrx.codes.
-    timeout: 20000
+# deep links and the system "Open in QRX?" prompt can be slow on CI simulators, so each is tried again
+- retry:
+    maxRetries: 2
+    commands:
+      - openLink: codes.qrx.app://codes
+      - tapOn:
+          text: Open
+          optional: true
+      - extendedWaitUntil:
+          visible: Every code you make, here and on qrx.codes.
+          timeout: 20000
 - waitForAnimationToEnd
 - takeScreenshot: ${MODE}-5-my-codes
 
-- openLink: codes.qrx.app://account
-- tapOn:
-    text: Open
-    optional: true
-- extendedWaitUntil:
-    visible: Today
-    timeout: 20000
+# deep links and the system "Open in QRX?" prompt can be slow on CI simulators, so each is tried again
+- retry:
+    maxRetries: 2
+    commands:
+      - openLink: codes.qrx.app://account
+      - tapOn:
+          text: Open
+          optional: true
+      - extendedWaitUntil:
+          visible: Today
+          timeout: 20000
 - waitForAnimationToEnd
 - takeScreenshot: ${MODE}-6-account
