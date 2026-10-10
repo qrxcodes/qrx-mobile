@@ -67,7 +67,8 @@ Agreement or merchant account (nothing is sold).
       with Apple and group it with the primary App ID `codes.qrx.app`; domains and return URL: Clerk's domain
       (`clerk.qrx.codes`) and the exact Return URL Clerk shows when you open its Apple connection (step 5).
    3. Keys → **+** → "QRX Sign in with Apple", enable Sign in with Apple, configure with the same App ID. Download the
-      key (`.p8`) and note its Key ID.
+      key (`.p8`) and note its Key ID. Then Services → Sign in with Apple for Email Communication: register the email
+      source Clerk lists for Apple Private Relay and verify it, so mail to Hide My Email addresses arrives.
    4. **First** give the prod API the same values, so deleting an account revokes its Apple sign-in, as Apple asks.
       MakerXStudio/qrxcodes → Settings → Environments → **Prod**: variables `APPLE_SIGNIN_TEAM_ID`,
       `APPLE_SIGNIN_KEY_ID` and `APPLE_SIGNIN_SERVICES_ID`, and secret `APPLE_SIGNIN_PRIVATE_KEY` (the `.p8` text).
