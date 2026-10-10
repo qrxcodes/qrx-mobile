@@ -17,16 +17,16 @@ The package name `codes.qrx.app` is fixed by the first AAB uploaded.
 
 ## Main store listing (Grow users → Store presence → Main store listing)
 
-| Field              | Value                                                                                                      |
-| ------------------ | ---------------------------------------------------------------------------------------------------------- |
-| App name           | `QRX: Art QR Codes`                                                                                        |
-| Short description  | `short_description.txt` (66 of 80)                                                                         |
-| Full description   | `full_description.txt` (1,441 of 4,000)                                                                    |
-| App icon           | `assets/play-icon-512.png` (512×512)                                                                       |
-| Feature graphic    | `assets/feature-graphic-1024x500.png`                                                                      |
-| Phone screenshots  | `screenshots/android-phone/` (1080×2400): 1 sign-in, 2 create, 3 progress, 4 result, 5 my codes, 6 account |
-| Tablet screenshots | Optional; leave empty                                                                                      |
-| Video              | None                                                                                                       |
+| Field              | Value                                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| App name           | `QRX: Art QR Codes`                                                                                                                        |
+| Short description  | `short_description.txt` (66 of 80)                                                                                                         |
+| Full description   | `full_description.txt` (1,441 of 4,000)                                                                                                    |
+| App icon           | `assets/play-icon-512.png` (512×512)                                                                                                       |
+| Feature graphic    | `assets/feature-graphic-1024x500.png`                                                                                                      |
+| Phone screenshots  | `screenshots/android-phone/` (1080×2400, JPEG; dark versions in `dark/`): 1 sign-in, 2 create, 3 progress, 4 result, 5 my codes, 6 account |
+| Tablet screenshots | Optional; leave empty                                                                                                                      |
+| Video              | None                                                                                                                                       |
 
 ## Store settings
 

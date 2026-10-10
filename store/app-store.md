@@ -43,21 +43,21 @@ Answers in `privacy.md` (section "App Store"). Privacy policy URL as above; no u
 
 ## Version 1.0 page
 
-| Field                    | Value                                                                                                                                                                           |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Screenshots, iPhone 6.9" | `screenshots/ios-6.9/` (1320×2868): 1 sign-in, 2 create, 3 progress, 4 result, 5 my codes, 6 account (light). Dark versions in the same folder if you want to mix in one or two |
-| Screenshots, iPad 13"    | `screenshots/ipad-13/` (2064×2752)                                                                                                                                              |
-| Promotional text         | `promotional_text.txt` (143 of 170)                                                                                                                                             |
-| Description              | `description.txt` (1,358 of 4,000)                                                                                                                                              |
-| Keywords                 | `keywords.txt` (95 of 100)                                                                                                                                                      |
-| Support URL              | `https://qrx.codes/support`                                                                                                                                                     |
-| Marketing URL            | `https://qrx.codes`                                                                                                                                                             |
-| Version                  | 1.0.0                                                                                                                                                                           |
-| Copyright                | `2026 MakerX`                                                                                                                                                                   |
-| Build                    | The TestFlight build from the Release workflow (about 15 minutes after upload)                                                                                                  |
-| Routing app coverage     | None                                                                                                                                                                            |
-| Game Center              | Off                                                                                                                                                                             |
-| What's New               | (first version: not shown) `release_notes.txt` for later versions                                                                                                               |
+| Field                    | Value                                                                                                                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Screenshots, iPhone 6.9" | `screenshots/ios-6.9/` (1320×2868, JPEG): 1 sign-in, 2 create, 3 progress, 4 result, 5 my codes, 6 account (light). Dark versions in `dark/` if you want to mix in one or two |
+| Screenshots, iPad 13"    | `screenshots/ipad-13/` (2064×2752, JPEG; dark versions in `dark/`)                                                                                                            |
+| Promotional text         | `promotional_text.txt` (143 of 170)                                                                                                                                           |
+| Description              | `description.txt` (1,358 of 4,000)                                                                                                                                            |
+| Keywords                 | `keywords.txt` (95 of 100)                                                                                                                                                    |
+| Support URL              | `https://qrx.codes/support`                                                                                                                                                   |
+| Marketing URL            | `https://qrx.codes`                                                                                                                                                           |
+| Version                  | 1.0.0                                                                                                                                                                         |
+| Copyright                | `2026 MakerX`                                                                                                                                                                 |
+| Build                    | The TestFlight build from the Release workflow (about 15 minutes after upload)                                                                                                |
+| Routing app coverage     | None                                                                                                                                                                          |
+| Game Center              | Off                                                                                                                                                                           |
+| What's New               | (first version: not shown) `release_notes.txt` for later versions                                                                                                             |
 
 ## App Review Information
 

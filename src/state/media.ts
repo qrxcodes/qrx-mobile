@@ -1,4 +1,3 @@
-import { Asset } from 'expo-asset';
 import * as Clipboard from 'expo-clipboard';
 import { Directory, File, Paths } from 'expo-file-system';
 import type { ImageSource } from 'expo-image';
@@ -41,6 +40,17 @@ const stylePreviews: Record<string, number> = {
   watercolor: require('../../assets/styles/watercolor.jpg'),
 };
 
+/** Where each sample picture lives on qrx.codes (the showcase, and one real code). */
+const mockImageUrl = (key: string) =>
+  key === 'hv8551' ? 'https://qrx.codes/media/premium/hv8551.png' : `https://qrx.codes/img/showcase/${key}-768.webp`;
+
+const mimeTypes: Record<string, { mimeType: string; UTI: string }> = {
+  png: { mimeType: 'image/png', UTI: 'public.png' },
+  webp: { mimeType: 'image/webp', UTI: 'org.webmproject.webp' },
+  jpg: { mimeType: 'image/jpeg', UTI: 'public.jpeg' },
+  jpeg: { mimeType: 'image/jpeg', UTI: 'public.jpeg' },
+};
+
 export function codeImageSource(imageUrl: string | null): ImageSource | number | null {
   if (!imageUrl) return null;
   if (imageUrl.startsWith('mock:')) return mockImages[imageUrl.slice(5)] ?? null;
@@ -58,19 +68,14 @@ export function stylePreviewSource(previewUrl: string | null): ImageSource | num
 /** Downloads (or, in the mock build, unpacks) the code's picture to a cache file named after the code. */
 async function localImage(code: Code): Promise<File> {
   if (!code.imageUrl) throw new Error('This code has no picture yet.');
-  if (code.imageUrl.startsWith('mock:')) {
-    const asset = await Asset.fromModule(mockImages[code.imageUrl.slice(5)]!).downloadAsync();
-    const source = new File(asset.localUri!);
-    const target = new File(Paths.cache, `qrx-${code.id}.jpg`);
-    if (target.exists) target.delete();
-    source.copy(target);
-    return target;
-  }
+  // the mock build's bundled pictures are resources, not files, on Android: fetch the same sample from qrx.codes
+  const url = code.imageUrl.startsWith('mock:') ? mockImageUrl(code.imageUrl.slice(5)) : code.imageUrl;
   const dir = new Directory(Paths.cache, 'codes');
   if (!dir.exists) dir.create({ intermediates: true });
-  const target = new File(dir, `qrx-${code.id}.png`);
+  const extension = /\.(png|jpe?g|webp)(\?|$)/i.exec(url)?.[1]?.toLowerCase() ?? 'png';
+  const target = new File(dir, `qrx-${code.id}.${extension}`);
   if (target.exists) return target;
-  return File.downloadFileAsync(code.imageUrl, target);
+  return File.downloadFileAsync(url, target);
 }
 
 export type SaveResult = 'saved' | 'denied';
@@ -92,8 +97,7 @@ export async function saveToPhotos(code: Code): Promise<SaveResult> {
 export async function shareImage(code: Code): Promise<void> {
   const file = await localImage(code);
   await Sharing.shareAsync(file.uri, {
-    mimeType: file.uri.endsWith('.png') ? 'image/png' : 'image/jpeg',
-    UTI: file.uri.endsWith('.png') ? 'public.png' : 'public.jpeg',
+    ...mimeTypes[file.uri.split('.').pop()?.toLowerCase() ?? 'png'],
     dialogTitle: 'Share QR code',
   });
 }

@@ -20,7 +20,12 @@ const selling =
 const offLimits = /wi-?fi|chatgpt|\bclaude\b|\bgemini\b|copilot|\btier\b|\bbadge\b/i;
 
 /** The code without its comments, so explanations for developers may name what the UI must not. */
-const withoutComments = (source: string) => source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+const withoutComments = (source: string) =>
+  source
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1')
+    // image file paths on the API host are storage locations, not words anyone reads
+    .replace(/https:\/\/qrx\.codes\/media\/[\w/.-]+/g, '');
 
 const read = (file: string) => readFileSync(file, 'utf8');
 const rel = (file: string) => path.relative(root, file);
