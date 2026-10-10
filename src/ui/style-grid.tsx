@@ -5,7 +5,7 @@ import { Pressable, View, useWindowDimensions } from 'react-native';
 import type { Style } from '@/lib/types';
 import { stylePreviewSource } from '@/state/media';
 
-import { Text } from './components';
+import { Mark, Text } from './components';
 import { MAX_CONTENT_WIDTH, radius, space, useTheme } from './theme';
 
 /** The styles as a grid of picture tiles; three across on phones, four on wider screens. */
@@ -23,7 +23,8 @@ export function StyleGrid({
   const inner = Math.min(width - space.lg * 2, MAX_CONTENT_WIDTH);
   const columns = inner > 520 ? 4 : 3;
   const gap = space.sm + 2;
-  const tile = (inner - gap * (columns - 1)) / columns;
+  // rounded down: a fraction of a pixel over would wrap the last tile onto the next row
+  const tile = Math.floor((inner - gap * (columns - 1)) / columns);
 
   return (
     <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap }}>
@@ -53,7 +54,13 @@ export function StyleGrid({
               }}
             >
               <View style={{ flex: 1, borderRadius: radius.md, overflow: 'hidden', backgroundColor: c.sunken }}>
-                {source ? <Image source={source} style={{ flex: 1 }} contentFit="cover" transition={150} /> : null}
+                {style.id === 'Noop' ? (
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', opacity: 0.55 }}>
+                    <Mark size={Math.round(tile * 0.32)} />
+                  </View>
+                ) : source ? (
+                  <Image source={source} style={{ flex: 1 }} contentFit="cover" transition={150} />
+                ) : null}
               </View>
             </View>
             <Text

@@ -24,7 +24,7 @@ export function useToast() {
     if (timer.current) clearTimeout(timer.current);
     setMessage(text);
     AccessibilityInfo.announceForAccessibility(text);
-    timer.current = setTimeout(() => setMessage(null), 2000);
+    timer.current = setTimeout(() => setMessage(null), 3000);
   }, []);
 
   const element = message ? (

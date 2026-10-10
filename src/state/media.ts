@@ -77,8 +77,12 @@ export type SaveResult = 'saved' | 'denied';
 
 /** Adds the picture to the photo library. Asks only for add-only access on iOS; Android 10+ needs no permission. */
 export async function saveToPhotos(code: Code): Promise<SaveResult> {
-  const permission = await MediaLibrary.requestPermissionsAsync(true);
-  if (!permission.granted && Platform.OS === 'ios') return 'denied';
+  // Android 10+ lets an app add its own images without a permission (the manifest blocks the read ones)
+  const needsPermission = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) < 29);
+  if (needsPermission) {
+    const permission = await MediaLibrary.requestPermissionsAsync(true, []);
+    if (!permission.granted) return 'denied';
+  }
   const file = await localImage(code);
   await MediaLibrary.Asset.create(file.uri);
   return 'saved';

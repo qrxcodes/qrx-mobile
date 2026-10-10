@@ -60,14 +60,20 @@ Agreement or merchant account (nothing is sold).
    - `https://qrx.codes/support#delete-account` shows the deletion answer;
    - `https://qrx.codes/privacy` has the mobile app section.
 2. **Sign in with Apple in Clerk** (guideline 4.8: the sign-in page offers Google, so it must offer Apple too):
-   1. Apple Developer → Identifiers → **+** → Services IDs: description "QRX sign-in", identifier `codes.qrx.signin`.
-      Enable Sign in with Apple; primary App ID: `codes.qrx.app` (register the App ID first, step 6); domains and
-      return URL: the values Clerk shows in the next step.
-   2. Keys → **+** → "QRX Sign in with Apple", enable Sign in with Apple, configure with the same App ID. Download the
+   1. Apple Developer → Identifiers → **+** → App IDs → App: description "QRX", explicit bundle ID `codes.qrx.app`,
+      capability **Sign in with Apple** ticked ("Enable as a primary App ID"). Apple needs this primary App ID behind
+      the web sign-in.
+   2. Identifiers → **+** → Services IDs: description "QRX sign-in", identifier `codes.qrx.signin`. Enable Sign in
+      with Apple and group it with the primary App ID `codes.qrx.app`; domains and return URL: the values Clerk shows
+      in step 4.
+   3. Keys → **+** → "QRX Sign in with Apple", enable Sign in with Apple, configure with the same App ID. Download the
       key (`.p8`) and note its Key ID.
-   3. Clerk prod dashboard → Configure → SSO connections → **Add → Apple**: Services ID, Team ID, Key ID and the key.
+   4. Clerk prod dashboard → Configure → SSO connections → **Add → Apple**: Services ID, Team ID, Key ID and the key.
       Save. Repeat on the dev instance if you want to test with the dev build.
-   4. Open `https://qrx.codes/sign-in` and check "Continue with Apple" appears.
+   5. Give the prod API the same Services ID, Team ID, Key ID and key (the `APPLE_SIGNIN_*` settings in the main
+      repo), so deleting an account revokes its Apple sign-in, as Apple asks. Deploy the main repo's account-deletion
+      change before turning Apple on.
+   6. Open `https://qrx.codes/sign-in` and check "Continue with Apple" appears.
 3. **Clerk OAuth app for the app** (prod dashboard → Configure → OAuth applications → **Add**):
    - Name **QRX for iOS and Android**; public client (no secret); PKCE required; consent screen on.
    - Scopes `qrx:read qrx:generate offline_access`.
@@ -75,14 +81,13 @@ Agreement or merchant account (nothing is sold).
    - Copy the client id into the repo variable `QRX_OAUTH_CLIENT_ID_PROD`.
      (The dev instance already has one: client `FIrdErGl4gyWwipu`, redirects `codes.qrx.app.dev://oauth` and
      `codes.qrx.app://oauth`.)
-4. **Reviewer account**: `review-notes.md`, "Reviewer account".
+4. **Reviewer account** with full access (`isPaid` set in Clerk): `review-notes.md`, "Reviewer account".
 
 ### App Store
 
 5. **Agreements**: App Store Connect → Business: the Free Apps agreement is enough. No Paid Apps Agreement.
-6. **App ID**: Certificates, Identifiers & Profiles → Identifiers → **+** → App IDs → App → description "QRX",
-   explicit bundle ID `codes.qrx.app`. No capabilities to tick (notifications are local; Sign in with Apple runs on the
-   web page). Optionally also `codes.qrx.app.dev` for TestFlight builds of the dev variant.
+6. **App ID**: `codes.qrx.app` was registered in step 2.1 with Sign in with Apple; no other capabilities are needed
+   (notifications are local). Optionally also `codes.qrx.app.dev` for TestFlight builds of the dev variant.
 7. **API keys and certificates**:
    1. Users and Access → Integrations → App Store Connect API → **+**: "QRX CI", role App Manager. Set the three
       `APP_STORE_CONNECT_*` secrets and `APPLE_TEAM_ID`.

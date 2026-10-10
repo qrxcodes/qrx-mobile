@@ -21,7 +21,8 @@ export default function MyCodes() {
   const inner = Math.min(width - space.lg * 2, MAX_CONTENT_WIDTH * 1.5);
   const columns = inner > 700 ? 4 : inner > 480 ? 3 : 2;
   const gap = space.md;
-  const tile = (inner - gap * (columns - 1)) / columns;
+  // rounded down: a fraction of a pixel over would wrap the last tile onto the next row
+  const tile = Math.floor((inner - gap * (columns - 1)) / columns);
 
   const header = (
     <View style={{ gap: 6, paddingTop: insets.top + space.lg + space.sm, paddingBottom: space.lg }}>

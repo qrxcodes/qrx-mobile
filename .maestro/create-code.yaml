@@ -4,8 +4,8 @@ appId: codes.qrx.app
 - launchApp:
     stopApp: true
 - extendedWaitUntil:
-    visible: Create code
-    timeout: 20000
+    visible: Picture
+    timeout: 60000
 - tapOn: A lighthouse on a rocky coast at dawn, soft watercolour
 - inputText: A paper boat on a calm lake
 - tapOn: example.com/menu
@@ -15,9 +15,9 @@ appId: codes.qrx.app
     element: Create code
 - tapOn: Create code
 - extendedWaitUntil:
-    visible: 'Painting your picture|Building the code into it'
-    timeout: 10000
+    visible: 'Painting your picture|Building the code into it|Checking it scans'
+    timeout: 15000
 - extendedWaitUntil:
     visible: Checked to scan
-    timeout: 30000
+    timeout: 40000
 - assertVisible: Copy link

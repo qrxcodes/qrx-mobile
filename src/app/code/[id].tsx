@@ -60,7 +60,7 @@ function InProgress({ code }: { code: Code }) {
   const elapsed = Math.max(0, (now - Date.parse(code.createdAt)) / 1000);
   const { label, fraction } = progressStage(elapsed);
   const bar = useAnimatedStyle(
-    () => ({ width: withTiming(`${Math.round(fraction * 100)}%`, { duration: 900 }) }),
+    () => ({ transform: [{ scaleX: withTiming(fraction, { duration: 900 }) }] }),
     [fraction],
   );
 
@@ -70,7 +70,9 @@ function InProgress({ code }: { code: Code }) {
       <View style={{ gap: space.sm }} accessibilityLiveRegion="polite">
         <Text variant="title">{label}</Text>
         <View style={{ height: 6, borderRadius: 3, backgroundColor: c.sunken, overflow: 'hidden' }}>
-          <Animated.View style={[{ height: 6, borderRadius: 3, backgroundColor: c.accent }, bar]} />
+          <Animated.View
+            style={[{ height: 6, width: '100%', backgroundColor: c.accent, transformOrigin: 'left' }, bar]}
+          />
         </View>
         <Text variant="small" tone="muted">
           A code takes about a minute. QRX paints the picture, builds your link into it, then checks that it scans.

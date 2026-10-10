@@ -41,7 +41,12 @@ export function createMockApi(): QrxApi {
       const code = find(id);
       if (!code) throw new TypeError('not found');
       // the sample "in progress" code stays in progress, for the progress screenshot
-      if (id === MOCK_PROCESSING_ID || code.status !== 'processing') return toCode(code);
+      if (code.status !== 'processing') return toCode(code);
+      // like the API, hold the request; the sample code never finishes, so it waits the whole time
+      if (id === MOCK_PROCESSING_ID) {
+        await delay(Math.min(wait, 25) * 1000);
+        return toCode(code);
+      }
       await delay(Math.min(wait, 2) * 1000);
       return toCode(find(id)!);
     },

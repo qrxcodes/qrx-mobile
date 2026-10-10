@@ -1,7 +1,7 @@
 QRX (https://qrx.codes) makes QR codes that are also pictures. This app is a free companion to the QRX web service: people sign in with their QRX account and make, keep and share codes.
 
 SIGN IN
-Tap "Sign in with QRX" and sign in with the demo account below (email and password). If the sign-in page ever asks for an emailed code, use "Use an API key" at the bottom of the first screen instead, with the API key at the end of this note.
+Tap "Sign in with QRX" and sign in with the demo account below (email and password). The demo account has full access to every feature. If the sign-in page ever asks for an emailed code, use "Use an API key" at the bottom of the first screen instead, with the API key at the end of this note.
 
 PURCHASES
 The app has no in-app purchases and sells nothing. It shows no prices and has no buttons, links or wording that lead to buying, in any storefront. Every account gets a daily allowance of codes, shown on the Account tab. Some people also pay for QRX on our website for more; the app lets them sign in and use their account as a free stand-alone companion to a paid web-based tool (guideline 3.1.3(f)).

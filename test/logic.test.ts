@@ -150,6 +150,20 @@ describe('following a code', () => {
     expect(getCode).toHaveBeenCalledWith('abc123', 25, undefined);
   });
 
+  it('waits between polls when a long poll comes back at once', async () => {
+    const getCode = vi
+      .fn()
+      .mockResolvedValueOnce(code('processing'))
+      .mockResolvedValueOnce(code('processing'))
+      .mockResolvedValueOnce(code('succeeded'));
+    const sleeps: number[] = [];
+    await pollUntilFinished({ getCode } as unknown as QrxApi, 'abc123', {
+      sleep: async (ms) => void sleeps.push(ms),
+      now: () => 0,
+    });
+    expect(sleeps).toEqual([2000, 2000]);
+  });
+
   it('rides out network blips', async () => {
     const getCode = vi.fn().mockRejectedValueOnce(networkError()).mockResolvedValueOnce(code('failed'));
     const done = await pollUntilFinished({ getCode } as unknown as QrxApi, 'abc123', { sleep: noSleep });

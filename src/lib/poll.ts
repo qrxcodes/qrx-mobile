@@ -6,11 +6,13 @@ import type { Code } from './types';
 /** Long-poll length per request; the API holds a GET for up to 50 s, shorter keeps mobile networks happy. */
 export const POLL_WAIT_SECONDS = 25;
 const MAX_TRANSIENT_FAILURES = 6;
+const MIN_POLL_INTERVAL_MS = 2000;
 
 export type PollOptions = {
   signal?: AbortSignal;
   onUpdate?: (code: Code) => void;
   sleep?: (ms: number) => Promise<void>;
+  now?: () => number;
 };
 
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -20,10 +22,11 @@ const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(r
  * (signed out, not found) is thrown. Returns null when aborted.
  */
 export async function pollUntilFinished(api: QrxApi, id: string, options: PollOptions = {}): Promise<Code | null> {
-  const { signal, onUpdate, sleep = defaultSleep } = options;
+  const { signal, onUpdate, sleep = defaultSleep, now = Date.now } = options;
   let failures = 0;
   while (!signal?.aborted) {
     let code: Code;
+    const started = now();
     try {
       code = await api.getCode(id, POLL_WAIT_SECONDS, signal);
     } catch (err) {
@@ -36,6 +39,8 @@ export async function pollUntilFinished(api: QrxApi, id: string, options: PollOp
     failures = 0;
     onUpdate?.(code);
     if (isFinished(code)) return code;
+    // a long poll that comes back at once (a proxy that doesn't hold the request) must not turn into a busy loop
+    if (now() - started < MIN_POLL_INTERVAL_MS) await sleep(MIN_POLL_INTERVAL_MS);
   }
   return null;
 }

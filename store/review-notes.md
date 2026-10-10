@@ -3,13 +3,16 @@
 ## Reviewer account (owner, before submitting)
 
 1. On **https://qrx.codes** (prod), sign up a dedicated account, e.g. `appreview@qrx.codes`, with **email and
-   password** (not Google), on the Free plan. Keep it out of any paid plan so reviewers see the same app as everyone.
-2. Make one code with it on the website, so My codes isn't empty.
-3. Create an **API key** for it at https://qrx.codes/developers/keys (the backup sign-in).
-4. In a private browser window, sign in again with the email and password. If Clerk asks for an emailed code on a new
+   password** (not Google).
+2. Give it **full access**, as App Review requires (guideline 2.1): Clerk dashboard → Users → the account → Metadata →
+   Public: `{ "isPaid": true }`. Reviewers can then change a code's link and are never stopped by the daily allowance.
+   No Stripe subscription is involved.
+3. Make one code with it on the website, so My codes isn't empty.
+4. Create an **API key** for it at https://qrx.codes/developers/keys (the backup sign-in).
+5. In a private browser window, sign in again with the email and password. If Clerk asks for an emailed code on a new
    device, either turn that off (Clerk dashboard → Configure → Attack protection / client trust) or rely on the API key
    line in the notes.
-5. Never commit the password or key. They go only into the store consoles.
+6. Never commit the password or key. They go only into the store consoles.
 
 ## App Store
 

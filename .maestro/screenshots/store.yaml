@@ -1,0 +1,69 @@
+# Store screenshots of the mock build. Run with -e OUT=<absolute folder> -e MODE=<prefix>; each shot waits for its
+# screen's content instead of sleeping.
+appId: codes.qrx.app
+---
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: Picture
+    timeout: 60000
+- tapOn: A lighthouse on a rocky coast at dawn, soft watercolour
+- inputText: A paper boat drifting on a calm lake at dawn, watercolour
+- tapOn: example.com/menu
+- inputText: harbourcafe.example/menu
+- hideKeyboard
+- tapOn: Watercolour
+- scrollUntilVisible:
+    element: Describe a picture and add your link.*
+    direction: UP
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/${MODE}-2-create
+
+- openLink: codes.qrx.app://preview-sign-in
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: Sign in with QRX
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/${MODE}-1-sign-in
+
+- openLink: codes.qrx.app://code/n3wc0d
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: You can leave this screen
+    timeout: 20000
+- takeScreenshot: ${OUT}/${MODE}-3-progress
+
+- openLink: codes.qrx.app://code/hv8551
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: qrx.to/hv8551
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/${MODE}-4-result
+
+- openLink: codes.qrx.app://codes
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: Every code you make, here and on qrx.codes.
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/${MODE}-5-my-codes
+
+- openLink: codes.qrx.app://account
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: Today
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: ${OUT}/${MODE}-6-account
