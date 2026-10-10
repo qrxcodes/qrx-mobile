@@ -26,7 +26,7 @@ export type Account = {
   plan: string;
   /** The daily allowance; all null when the account has no daily limit. */
   codes: { dailyLimit: number | null; remainingToday: number | null; resetsAt: string | null };
-  features: { changeDestination: boolean; wifiCodes?: boolean };
+  features: { changeDestination: boolean };
   credentials: { type: string; prefix: string | null; environment: string };
 };
 

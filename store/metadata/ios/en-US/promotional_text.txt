@@ -1,0 +1,1 @@
+Describe a picture, add your link, and QRX paints a QR code into it. Every code is checked to scan before you get it, with its own qrx.to link.

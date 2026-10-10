@@ -1,0 +1,209 @@
+name: Release
+
+# Store builds of the production app (https://qrx.codes). Run by hand: Actions → Release → Run workflow.
+# - iOS: a signed IPA, uploaded to TestFlight. Attach it to an App Store version and submit in App Store Connect.
+# - Android: a signed AAB (artifact), uploaded to the Internal testing track as a draft. Play's API can't create the
+#   app's first release, so upload the very first AAB by hand from the artifact.
+# Each platform is skipped with a notice until its secrets exist (see store/README.md, "Secrets").
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Which store builds to make
+        type: choice
+        default: both
+        options: [both, ios, android]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  BUILD_NUMBER: ${{ github.run_number }}
+  QRX_OAUTH_CLIENT_ID_PROD: ${{ vars.QRX_OAUTH_CLIENT_ID_PROD }}
+
+jobs:
+  ios:
+    if: inputs.platform != 'android'
+    name: iOS → TestFlight
+    runs-on: macos-26
+    timeout-minutes: 75
+    steps:
+      - name: Check the Apple secrets
+        id: go
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          P8: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          DIST_P12: ${{ secrets.APPLE_DIST_CERT_P12 }}
+        run: |
+          if [ -n "$KEY_ID" ] && [ -n "$ISSUER_ID" ] && [ -n "$P8" ] && [ -n "$TEAM_ID" ] && [ -n "$DIST_P12" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::iOS skipped: set APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_PRIVATE_KEY, APPLE_TEAM_ID and the certificate secrets (tools/apple-signing/create-certs.mjs)."
+          fi
+          if [ -z "$QRX_OAUTH_CLIENT_ID_PROD" ]; then
+            echo "::warning::QRX_OAUTH_CLIENT_ID_PROD is not set; the app will register itself with Clerk on each install."
+          fi
+      - uses: actions/checkout@v7
+        if: steps.go.outputs.run == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.go.outputs.run == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Select the newest Xcode 26
+        if: steps.go.outputs.run == 'true'
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+          xcodebuild -version
+      - if: steps.go.outputs.run == 'true'
+        run: npm ci && npx expo prebuild --platform ios
+      - name: Import the signing certificates
+        if: steps.go.outputs.run == 'true'
+        env:
+          DEV_P12: ${{ secrets.APPLE_DEV_CERT_P12 }}
+          DIST_P12: ${{ secrets.APPLE_DIST_CERT_P12 }}
+          P12_PASSWORD: ${{ secrets.APPLE_CERTS_PASSWORD }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          P8: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/ci.keychain-db"
+          KEYCHAIN_PASS=$(openssl rand -base64 24)
+          security create-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN"
+          for p12 in "$DEV_P12" "$DIST_P12"; do
+            [ -n "$p12" ] || continue
+            printf '%s' "$p12" | base64 -d > "$RUNNER_TEMP/cert.p12"
+            security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$P12_PASSWORD" -A -f pkcs12
+          done
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASS" "$KEYCHAIN" > /dev/null
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain
+          mkdir -p ~/private_keys
+          printf '%s' "$P8" > ~/private_keys/AuthKey_$KEY_ID.p8
+      - name: Archive and export the IPA (App Store Connect cloud signing)
+        if: steps.go.outputs.run == 'true'
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          WORKSPACE=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          AUTH=(-authenticationKeyPath "$HOME/private_keys/AuthKey_$KEY_ID.p8" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID")
+          xcodebuild archive -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release \
+            -destination generic/platform=iOS -archivePath build/QRX.xcarchive -derivedDataPath build/DerivedData \
+            -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Automatic "${AUTH[@]}" > archive.log 2>&1 \
+            || { grep -iE "error" archive.log | tail -40; exit 1; }
+          cat > ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath build/QRX.xcarchive -exportPath build/export \
+            -exportOptionsPlist ExportOptions.plist -allowProvisioningUpdates "${AUTH[@]}" > export.log 2>&1 \
+            || { tail -60 export.log; exit 1; }
+          IPA=$(ls build/export/*.ipa | head -1)
+          cp "$IPA" "qrx-ios-${BUILD_NUMBER}.ipa"
+          echo "IPA=qrx-ios-${BUILD_NUMBER}.ipa" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v7
+        if: steps.go.outputs.run == 'true'
+        with:
+          name: qrx-ios-ipa
+          path: ${{ env.IPA }}
+      - name: Upload to TestFlight
+        if: steps.go.outputs.run == 'true'
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-path: ${{ env.IPA }}
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+
+  android:
+    if: inputs.platform != 'ios'
+    name: Android → Play internal testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check the Android secrets
+        id: go
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -n "$KEYSTORE" ]; then echo "sign=true" >> "$GITHUB_OUTPUT"; else
+            echo "sign=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Android skipped: set ANDROID_UPLOAD_KEYSTORE_BASE64, ANDROID_UPLOAD_KEYSTORE_PASSWORD, ANDROID_UPLOAD_KEY_ALIAS and ANDROID_UPLOAD_KEY_PASSWORD (store/README.md)."
+          fi
+          if [ -n "$PLAY" ]; then echo "upload=true" >> "$GITHUB_OUTPUT"; else
+            echo "upload=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No PLAY_SERVICE_ACCOUNT_JSON: the signed AAB is left as an artifact to upload by hand."
+          fi
+      - uses: jlumbroso/free-disk-space@v2.0.0
+        if: steps.go.outputs.sign == 'true'
+        with:
+          android: false
+          tool-cache: false
+      - uses: actions/checkout@v7
+        if: steps.go.outputs.sign == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.go.outputs.sign == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v6
+        if: steps.go.outputs.sign == 'true'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+        if: steps.go.outputs.sign == 'true'
+      - if: steps.go.outputs.sign == 'true'
+        run: npm ci && npx expo prebuild --platform android --no-install
+      - name: Build the AAB
+        if: steps.go.outputs.sign == 'true'
+        working-directory: android
+        run: ./gradlew :app:bundleRelease --no-daemon
+      - name: Sign with the upload key
+        if: steps.go.outputs.sign == 'true'
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          AAB="qrx-android-${BUILD_NUMBER}.aab"
+          cp android/app/build/outputs/bundle/release/app-release.aab "$AAB"
+          # the build signs with the debug key; Play refuses a bundle with two signatures
+          zip -q -d "$AAB" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/MANIFEST.MF' || true
+          jarsigner -keystore "$RUNNER_TEMP/upload.jks" -storepass "$STORE_PASS" -keypass "$KEY_PASS" \
+            -sigalg SHA256withRSA -digestalg SHA-256 "$AAB" "$ALIAS"
+          jarsigner -verify "$AAB" > /dev/null
+          rm -f "$RUNNER_TEMP/upload.jks"
+          echo "AAB=$AAB" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v7
+        if: steps.go.outputs.sign == 'true'
+        with:
+          name: qrx-android-aab
+          path: ${{ env.AAB }}
+      - name: Upload to Play (Internal testing, draft)
+        if: steps.go.outputs.sign == 'true' && steps.go.outputs.upload == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: codes.qrx.app
+          releaseFiles: ${{ env.AAB }}
+          track: internal
+          status: draft

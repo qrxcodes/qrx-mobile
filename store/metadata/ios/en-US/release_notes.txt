@@ -1,0 +1,1 @@
+First release: make art QR codes on your phone, follow them while they are painted, and share or save the result.

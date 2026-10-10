@@ -1,0 +1,1 @@
+Turn a link into a QR code that's also a picture, checked to scan.

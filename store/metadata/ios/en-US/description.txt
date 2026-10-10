@@ -1,0 +1,20 @@
+QRX makes QR codes that people want to look at, and that still scan.
+
+Describe a picture, add the link you want people to reach, and pick a style. QRX paints the picture, builds your QR code into it, then decodes the finished image to check it opens your link before handing it over. You get a print-ready design instead of a black-and-white square.
+
+WHAT YOU GET
+• A QR code that is also a picture: a fox in the snow, a lighthouse at dawn, a koi pond at night.
+• Eleven styles, from watercolour, illustration and photographic to pixel art and anime, or no style at all.
+• Every code is checked to scan before you get it.
+• A hosted qrx.to short link for every code.
+• Share the image, save it to Photos or copy the link in one tap.
+• My codes keeps everything you have made, here and on qrx.codes.
+
+KEEP GOING WHILE IT PAINTS
+A code takes about a minute. Leave the screen or the app: QRX keeps going, and can send a notification when your code is ready.
+
+YOUR QRX ACCOUNT
+Sign in with your QRX account, or create a free one when you sign in. Your codes are the same in the app and on qrx.codes.
+
+GOOD TO KNOW
+Keep the prompt to the picture you want; QRX takes care of the code. Test-scan before a large print run and leave a clear margin around the code. If a picture isn't right, report it from the code's page and the QRX team will review it.
