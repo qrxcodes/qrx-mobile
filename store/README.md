@@ -26,7 +26,7 @@ There are **no in-app purchases or subscription products** to set up: the app se
 | App Store Connect API key, **Admin** role (temporary) | Same place                                                  | Only to run `tools/apple-signing/create-certs.mjs`; revoke afterwards if you like |
 | Apple Services ID + Sign in with Apple key            | Certificates, Identifiers & Profiles                        | For Sign in with Apple in Clerk (step 2)                                          |
 | Google Play Console                                   | MakerX's existing organisation account                      | Admin to create the app                                                           |
-| Upload keystore                                       | Made locally with `keytool` (step 11)                       | Keep a backup: losing it means asking Google for an upload key reset              |
+| Upload keystore                                       | Made locally with `keytool` (step 12)                       | Keep a backup: losing it means asking Google for an upload key reset              |
 | Google Cloud service account                          | Google Cloud console + Play Console → Users and permissions | Optional: lets CI upload to Internal testing                                      |
 | Clerk prod dashboard                                  | clerk.qrx.codes instance                                    | Apple connection and the OAuth app                                                |
 | GitHub admin on `qrxcodes/qrx-mobile`                 |                                                             | To set the secrets and variable below                                             |
@@ -45,7 +45,7 @@ Agreement or merchant account (nothing is sold).
 | `APPLE_TEAM_ID`                                                                               | Secret            | MakerX's Team ID (Membership details)                                |
 | `APPLE_DEV_CERT_P12`, `APPLE_DIST_CERT_P12`, `APPLE_CERTS_PASSWORD`                           | Secrets           | Set by `tools/apple-signing/create-certs.mjs`                        |
 | `ANDROID_UPLOAD_KEYSTORE_BASE64`                                                              | Secret            | `base64 -w0 qrx-upload.jks`                                          |
-| `ANDROID_UPLOAD_KEYSTORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`, `ANDROID_UPLOAD_KEY_PASSWORD` | Secrets           | From step 11                                                         |
+| `ANDROID_UPLOAD_KEYSTORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`, `ANDROID_UPLOAD_KEY_PASSWORD` | Secrets           | From step 12                                                         |
 | `PLAY_SERVICE_ACCOUNT_JSON`                                                                   | Secret (optional) | The service account's JSON key                                       |
 
 `gh secret set NAME --repo qrxcodes/qrx-mobile < file` works for each.
@@ -83,24 +83,25 @@ Agreement or merchant account (nothing is sold).
      (The dev instance already has one: client `FIrdErGl4gyWwipu`, redirects `codes.qrx.app.dev://oauth` and
      `codes.qrx.app://oauth`.)
 4. **Reviewer account** with full access (`isPaid` set in Clerk): `review-notes.md`, "Reviewer account".
+5. **Slack copies of generations**: each generation is posted to an internal Slack channel with the prompt and image, and account deletion doesn't remove those posts. Set a short message retention on those channels (Slack → channel settings → message retention, e.g. 30 days) and add it to the privacy policy's retention section, or ask for the posts to drop the username and prompt.
 
 ### App Store
 
-5. **Agreements**: App Store Connect → Business: the Free Apps agreement is enough. No Paid Apps Agreement.
-6. **App ID**: `codes.qrx.app` was registered in step 2.1 with Sign in with Apple; no other capabilities are needed
+6. **Agreements**: App Store Connect → Business: the Free Apps agreement is enough. No Paid Apps Agreement.
+7. **App ID**: `codes.qrx.app` was registered in step 2.1 with Sign in with Apple; no other capabilities are needed
    (notifications are local). Optionally also `codes.qrx.app.dev` for TestFlight builds of the dev variant.
-7. **API keys and certificates**:
+8. **API keys and certificates**:
    1. Users and Access → Integrations → App Store Connect API → **+**: "QRX CI", role App Manager. Set the three
       `APP_STORE_CONNECT_*` secrets and `APPLE_TEAM_ID`.
    2. Make the signing certificates (once a year): create a temporary Admin key, then from this repo:
       `ASC_KEY_ID=… ASC_ISSUER_ID=… ASC_P8_PATH=… node tools/apple-signing/create-certs.mjs create`. It sets
       `APPLE_DEV_CERT_P12`, `APPLE_DIST_CERT_P12` and `APPLE_CERTS_PASSWORD`. Revoke the Admin key afterwards if you
       like.
-8. **New app** in App Store Connect: `app-store.md`, "New app".
-9. **First build**: Actions → **Release** → Run workflow → platform `ios`. It archives with cloud signing and uploads
-   to TestFlight. Processing takes about 15 minutes. Install it through TestFlight on a phone: sign in, make a code,
-   save it to Photos, share it, and delete nothing.
-10. **Fill the app record** from `app-store.md`: App Information, Pricing and Availability (Free, no in-app
+9. **New app** in App Store Connect: `app-store.md`, "New app".
+10. **First build**: Actions → **Release** → Run workflow → platform `ios`. It archives with cloud signing and uploads
+    to TestFlight. Processing takes about 15 minutes. Install it through TestFlight on a phone: sign in, make a code,
+    save it to Photos, share it, and delete nothing.
+11. **Fill the app record** from `app-store.md`: App Information, Pricing and Availability (Free, no in-app
     purchases), App Privacy (`privacy.md`), Age Rating (`age-rating.md`), the 1.0 version page (screenshots, text,
     URLs, build), App Review Information (`review-notes.md`). Then **Add for Review → Submit**.
 
@@ -108,24 +109,24 @@ Agreement or merchant account (nothing is sold).
 
 Before submitting: Play's AI-generated content policy requires preventing restricted content, and today QRX only filters prompts against a word list. Stronger prompt and image moderation must be live first (main repo, `docs/distribution/builds/mobile-apps.md`, section 6).
 
-11. **Upload key** (once, keep backups):
+12. **Upload key** (once, keep backups):
     `keytool -genkeypair -v -keystore qrx-upload.jks -alias qrx-upload -keyalg RSA -keysize 4096 -validity 10000`.
     Set `ANDROID_UPLOAD_KEYSTORE_BASE64` (`base64 -w0 qrx-upload.jks`), `ANDROID_UPLOAD_KEYSTORE_PASSWORD`,
     `ANDROID_UPLOAD_KEY_ALIAS` (`qrx-upload`) and `ANDROID_UPLOAD_KEY_PASSWORD`.
-12. **Create the app**: `google-play.md`, "Create app".
-13. **First build**: Actions → **Release** → platform `android`. Download the `qrx-android-aab` artifact and upload it
+13. **Create the app**: `google-play.md`, "Create app".
+14. **First build**: Actions → **Release** → platform `android`. Download the `qrx-android-aab` artifact and upload it
     in Testing → Internal testing → Create new release (accept Play App Signing). Add yourself as a tester and check
-    the app as in step 9.
-14. **Optional CI uploads**: Google Cloud → a project → IAM → Service accounts → create "qrx-play-ci", add a JSON key.
+    the app as in step 10.
+15. **Optional CI uploads**: Google Cloud → a project → IAM → Service accounts → create "qrx-play-ci", add a JSON key.
     Play Console → Users and permissions → Invite the service account's email with _Release apps to testing tracks_
     and _Release to production_ for QRX. Set `PLAY_SERVICE_ACCOUNT_JSON`. (New permissions can take up to a day to
     work.)
-15. **App content** (Policy and programs → App content), from `google-play.md`, `privacy.md` and `age-rating.md`:
+16. **App content** (Policy and programs → App content), from `google-play.md`, `privacy.md` and `age-rating.md`:
     privacy policy, ads, app access, content rating, target audience, data safety (with the deletion URL), advertising
     ID, government, financial, health.
-16. **Store listing and settings** from `google-play.md`: text, icon, feature graphic, phone screenshots, category Art
+17. **Store listing and settings** from `google-play.md`: text, icon, feature graphic, phone screenshots, category Art
     & Design, contact details.
-17. **Production**: Production → Create new release → add the tested build from the library → release notes →
+18. **Production**: first check that the stronger prompt and image moderation is live on prod (an unsafe prompt is refused). Then Production → Create new release → add the tested build from the library → release notes →
     **Send for review**. (If the dashboard asks for a closed test with 12 testers first, it treats the account as
     personal; run that test, then come back.)
 
