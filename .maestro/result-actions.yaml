@@ -18,12 +18,14 @@ appId: codes.qrx.app
     text: Copy link
     index: 0
     waitToSettleTimeoutMs: 300
-- assertVisible: Link copied
+- extendedWaitUntil:
+    visible: Copied
+    timeout: 5000
 - tapOn:
     text: Save
     waitToSettleTimeoutMs: 300
 - extendedWaitUntil:
-    visible: 'Saved to .*'
+    visible: Saved
     timeout: 15000
 - scrollUntilVisible:
     element: Report a problem with this image

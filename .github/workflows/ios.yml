@@ -82,6 +82,9 @@ jobs:
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
       - name: Capture screenshots
         if: steps.go.outputs.run == 'true' && matrix.build == 'mock'
+        env:
+          # the XCTest driver can take a few minutes to start on a cold CI simulator
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: '300000'
         run: bash .github/scripts/capture-ios.sh "$APP"
       - uses: actions/upload-artifact@v7
         if: always() && steps.go.outputs.run == 'true' && matrix.build == 'mock'

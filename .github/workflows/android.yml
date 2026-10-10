@@ -58,6 +58,7 @@ jobs:
     timeout-minutes: 60
     env:
       QRX_MOCK: '1'
+      MAESTRO_DRIVER_STARTUP_TIMEOUT: '180000'
       BUILD_NUMBER: ${{ github.run_number }}
     steps:
       - uses: jlumbroso/free-disk-space@v2.0.0

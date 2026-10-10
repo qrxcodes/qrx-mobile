@@ -132,6 +132,25 @@ function Finished({ code }: { code: Code }) {
   const styles = useStyles();
   const toast = useToast();
   const [busy, setBusy] = useState<'share' | 'save' | null>(null);
+  // the tile itself says it worked ("Copied", "Saved") for a few seconds
+  const [done, setDone] = useState<'copy' | 'save' | null>(null);
+  const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => void (doneTimer.current && clearTimeout(doneTimer.current)), []);
+  const markDone = (kind: 'copy' | 'save') => {
+    if (doneTimer.current) clearTimeout(doneTimer.current);
+    setDone(kind);
+    doneTimer.current = setTimeout(() => setDone(null), 4000);
+  };
+  const copy = async () => {
+    try {
+      await copyLink(code);
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      markDone('copy');
+      toast.show('Link copied');
+    } catch {
+      toast.show('Couldn’t copy the link');
+    }
+  };
   const celebrated = useRef(false);
 
   useEffect(() => {
@@ -153,7 +172,10 @@ function Finished({ code }: { code: Code }) {
             { text: 'Not now', style: 'cancel' },
             { text: 'Open Settings', onPress: () => void Linking.openSettings() },
           ]);
-        } else toast.show(Platform.OS === 'ios' ? 'Saved to Photos' : 'Saved to your gallery');
+        } else {
+          markDone('save');
+          toast.show(Platform.OS === 'ios' ? 'Saved to Photos' : 'Saved to your gallery');
+        }
       }
     } catch (err) {
       toast.show(describeProblem(toProblem(err)).title);
@@ -184,11 +206,7 @@ function Finished({ code }: { code: Code }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Short link ${displayLink(code.shortUrl)}. Copy`}
-          onPress={async () => {
-            await copyLink(code);
-            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            toast.show('Link copied');
-          }}
+          onPress={copy}
           style={({ pressed }) => ({
             flexDirection: 'row',
             alignItems: 'center',
@@ -213,14 +231,16 @@ function Finished({ code }: { code: Code }) {
 
         <View style={{ flexDirection: 'row', gap: space.sm }}>
           <ActionTile label="Share" icon={icons.share} busy={busy === 'share'} onPress={() => run('share')} />
-          <ActionTile label="Save" icon={icons.save} busy={busy === 'save'} onPress={() => run('save')} />
           <ActionTile
-            label="Copy link"
-            icon={icons.link}
-            onPress={async () => {
-              await copyLink(code);
-              toast.show('Link copied');
-            }}
+            label={done === 'save' ? 'Saved' : 'Save'}
+            icon={done === 'save' ? icons.check : icons.save}
+            busy={busy === 'save'}
+            onPress={() => run('save')}
+          />
+          <ActionTile
+            label={done === 'copy' ? 'Copied' : 'Copy link'}
+            icon={done === 'copy' ? icons.check : icons.link}
+            onPress={copy}
           />
         </View>
 
